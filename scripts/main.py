@@ -10,27 +10,54 @@ import time
 
 test_flag = False
 
+#dev_so = ctypes.CDLL('libFPDev_WL.so')
+dev_so = ctypes.CDLL('libFpDriverUSB_WL.so')
+#dev_so = ctypes.CDLL('libFPDevUSB_WL.so')
+#alg_so = ctypes.CDLL('libFPAlg_WL.so')
+#alg_so = ctypes.CDLL('libFPDevUSB_WL.so')
+
+img_1 = (ctypes.c_char * (40537))()
+img_2 = (ctypes.c_char * (40537))()
+img_3 = (ctypes.c_char * (40537))()
+tz_1 = (ctypes.c_char * (512 + 1))()
+tz_2 = (ctypes.c_char * (512 + 1))()
+tz_3 = (ctypes.c_char * (512 + 1))()
+
+def test_fun():
+    pass
+
 def main():
+    global dev_so
+    global img_1
+    global img_2
+    global img_3
+    global tz_1
+    global tz_2
+    global tz_3
     rate = rospy.Rate(10)
     time.sleep(1)
-    #dev_so = ctypes.CDLL('libFPDev_WL.so')
-    dev_so = ctypes.CDLL('libFPDevUSB_WL.so')
-    #alg_so = ctypes.CDLL('libFPAlg_WL.so')
-    #alg_so = ctypes.CDLL('libFPDevUSB_WL.so')
 
     dev_info = (ctypes.c_char * (64 + 1))()
     lib_info = (ctypes.c_char * (64 + 1))()
     err_msgs = (ctypes.c_char * (64 + 1))()
     sMB = (ctypes.c_char * (512 + 1))()
     sTZ = (ctypes.c_char * (512 + 1))()
+    tmp_buf = (ctypes.c_char * (512 + 1))()
 
     data_len = ctypes.c_int(1)
+    img_data_len = ctypes.c_int(1)
 
     term = -1
     port = 0
     ret = -1 
 
     os.system("clear")
+
+    ret = dev_so.FPIDeviceInit()
+    if ret < 0:
+        rospy.logerr("ERROR: FPIDeviceInit error ! !")
+    else:
+        rospy.loginfo("FPIDeviceInit OK")
 
     print "start to get dev version ... "
     #ret = dev_so.FPIGetVersion(term, port, 3000, dev_info, err_msgs)
@@ -42,14 +69,11 @@ def main():
     else:
         rospy.loginfo("dev_info:  %s", dev_info.value)
 
-    print "start to get lib info ... "
-    ret = dev_so.FPIGetInfo(lib_info, err_msgs)
-    print ' ---------- end of getting lib info --------------'
-
-    if ret < 0:
-        rospy.logerr("ERROR: FPIGetInfo error ! !")
-    else:
-        rospy.loginfo("dev_info:  %s", lib_info.value)
+#    print "start to get lib info ... "
+#    #ret = dev_so.FPIGetInfo(lib_info, err_msgs)
+#    lib_info = dev_so.FPIGetDllVersion()
+#    print ' ---------- end of getting lib info --------------'
+#    rospy.loginfo("dev_info:  %s", lib_info.value)
 
 
     #sys.system('clear')
@@ -62,6 +86,7 @@ def main():
                 "\t\t\t1-- get template (press 3 times) and save template \n"\
                 "\t\t\t2--pick fingerprint feature and match \n" \
                 "\t\t\t4--finger check(check the finger is pressed or not)\n" \
+                "\t\t\t5-- get template \n"\
                 "\t\t\t0--quit        \n"
 
         state = input("\n input option (integer) \n  ")
@@ -80,7 +105,8 @@ def main():
             print "start to pick fingerprint model ..."
             data_len.value = 0
             #ret = dev_so.FPIGetTemplate(term, port, 15000, sMB, ctypes.byref(data_len), err_msgs)
-            ret = dev_so.FPIGetTemplate(15000, sMB, ctypes.byref(data_len), err_msgs)
+            #ret = dev_so.FPIGetTemplate(15000, sMB, ctypes.byref(data_len), err_msgs)
+            ret = dev_so.FPITemplate(15000, sMB, ctypes.byref(data_len))
             print ' ---------- pick fingerprint model --------------'
             if ret < 0:
                 rospy.logerr("ERROR: FPIGetTemplate error ! !")
@@ -98,7 +124,8 @@ def main():
             print "start to pick fingerprint feature ..."
             data_len.value = 0
             #ret = dev_so.FPIGetFeature(term, port, 5000, sTZ, ctypes.byref(data_len), err_msgs)
-            ret = dev_so.FPIGetFeature(5000, sTZ, ctypes.byref(data_len), err_msgs)
+            #ret = dev_so.FPIGetFeature(5000, sTZ, ctypes.byref(data_len), err_msgs)
+            ret = dev_so.FPIFeature(5000, sTZ, ctypes.byref(data_len))
             print ' ---------- pick fingerprint feature --------------'
 
             if ret < 0:
@@ -137,6 +164,48 @@ def main():
                     print "finger is pressed "
                 if ret == 1:
                     print "finger is not pressed "
+
+
+        elif state == 5:
+
+            print "\n 1  start\n"
+            ret = dev_so.FPIGetFeatureAndImage(5000, tz_1, ctypes.byref(data_len), img_1, ctypes.byref(img_data_len), err_msgs)
+            if ret < 0:
+                rospy.logerr("ERROR: FPIGetFeatureAndImage error ! !")
+                rospy.logerr("\nFPIGetFeatureAndImage--[%d] [%s]", ret, err_msgs.value)
+            else:
+                rospy.loginfo("FPIGetFeatureAndImage excute OK")
+                print 'img_1: ', tz_1.value
+            print " 1 end \n"
+
+            print "\n 2 start\n"
+            ret = dev_so.FPIGetFeatureAndImage(5000, tz_2, ctypes.byref(data_len), img_2, ctypes.byref(img_data_len), err_msgs)
+            if ret < 0:
+                rospy.logerr("ERROR: FPIGetFeatureAndImage error ! !")
+                rospy.logerr("\nFPIGetFeatureAndImage--[%d] [%s]", ret, err_msgs.value)
+            else:
+                rospy.loginfo("FPIGetFeatureAndImage excute OK")
+                print 'img_2: ', tz_2.value
+            print " 2 end \n"
+
+            print "\n 3 start\n"
+            ret = dev_so.FPIGetFeatureAndImage(5000, tz_3, ctypes.byref(data_len), img_3, ctypes.byref(img_data_len), err_msgs)
+            if ret < 0:
+                rospy.logerr("ERROR: FPIGetFeatureAndImage error ! !")
+                rospy.logerr("\nFPIGetFeatureAndImage--[%d] [%s]", ret, err_msgs.value)
+            else:
+                rospy.loginfo("FPIGetFeatureAndImage excute OK")
+                print 'img_3: ', tz_3.value
+            print " 3 end \n"
+
+            #ret = dev_so.FPIGetTemplateByTZ(img_1, img_2, img_3, sMB, ctypes.byref(data_len), err_msgs)
+            ret = dev_so.FPIGetTemplateByTZ(tz_1, tz_2, tz_3, sMB, ctypes.byref(data_len))
+            if ret < 0:
+                rospy.logerr("ERROR: FPIGetTemplateByImg error ! !")
+                rospy.logerr("\nFPIGetTemplateByImg--[%d] [%s]", ret, err_msgs.value)
+            elif ret == 0:
+                rospy.loginfo("FPIGetTemplateByImg excute OK")
+                print 'get sMB :', sMB.value
 
         elif state == 0:
             #exit(1)
