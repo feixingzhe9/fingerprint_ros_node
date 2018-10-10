@@ -7,11 +7,16 @@ import sys
 import rospy
 import time
 
+
+test_flag = False
+
 def main():
     rate = rospy.Rate(10)
     time.sleep(1)
-    dev_so = ctypes.CDLL('libFPDev_WL.so')
-    alg_so = ctypes.CDLL('libFPAlg_WL.so')
+    #dev_so = ctypes.CDLL('libFPDev_WL.so')
+    dev_so = ctypes.CDLL('libFPDevUSB_WL.so')
+    #alg_so = ctypes.CDLL('libFPAlg_WL.so')
+    alg_so = ctypes.CDLL('libFPDevUSB_WL.so')
 
     dev_info = (ctypes.c_char * (64 + 1))()
     err_msgs = (ctypes.c_char * (64 + 1))()
@@ -25,7 +30,8 @@ def main():
     ret = -1 
     os.system("clear")
     print "start to get dev version ... "
-    ret = dev_so.FPIGetVersion(term, port, 3000, dev_info, err_msgs)
+    #ret = dev_so.FPIGetVersion(term, port, 3000, dev_info, err_msgs)
+    ret = dev_so.FPIGetVersion(dev_info, err_msgs)
     print ' ---------- end of getting dev version --------------'
     if ret < 0:
         rospy.logerr("ERROR: FPIGetVersion error ! !")
@@ -42,6 +48,7 @@ def main():
                 "\t\t\t1-- get template (press 3 times) and save template \n"\
                 "\t\t\t2--pick fingerprint feature  \n" \
                 "\t\t\t3--fingerprint match\n" \
+                "\t\t\t4--finger check(check the finger is pressed or not)\n" \
                 "\t\t\t0--quit        \n"
 
         state = input("\n input option (integer) \n  ")
@@ -58,23 +65,30 @@ def main():
         if state == 1:
 
             print "start to pick fingerprint model ..."
-            ret = dev_so.FPIGetTemplate(term, port, 15000, sMB, ctypes.byref(data_len), err_msgs)
+            data_len.value = 0
+            #ret = dev_so.FPIGetTemplate(term, port, 15000, sMB, ctypes.byref(data_len), err_msgs)
+            ret = dev_so.FPIGetTemplate(15000, sMB, ctypes.byref(data_len), err_msgs)
             print ' ---------- pick fingerprint model --------------'
             if ret < 0:
                 rospy.logerr("ERROR: FPIGetTemplate error ! !")
                 rospy.logerr("\n采集指纹模板失败--[%d] [%s]", ret, err_msgs.value)
-            else:
+            elif ret == 0:
                 rospy.loginfo("FPIGetTemplate excute OK")
                 rospy.loginfo("\n采集指纹模板成功\n")
+                rospy.logwarn("\n ret:[%d], err_msgs:[%s]", ret, err_msgs.value)
                 rospy.loginfo("data len:  %d", data_len.value)
                 #for i in range(0, len(sMB)):
                 rospy.loginfo("template info:  %s", sMB.value)
 
+            print 'ret value: ', ret
 
         elif state == 2:
 
             print "start to pick fingerprint feature ..."
-            ret = dev_so.FPIGetFeature(term, port, 5000, sTZ, ctypes.byref(data_len), err_msgs)
+            data_len.value = 0
+            #sTZ_tmp = (ctypes.c_char * (512 + 1))()
+            #ret = dev_so.FPIGetFeature(term, port, 5000, sTZ, ctypes.byref(data_len), err_msgs)
+            ret = dev_so.FPIGetFeature(5000, sTZ, ctypes.byref(data_len), err_msgs)
             print ' ---------- pick fingerprint feature --------------'
 
             if ret < 0:
@@ -85,25 +99,50 @@ def main():
                 rospy.loginfo("data len:  %d", data_len.value)
                 rospy.loginfo("feature info: %s", sTZ.value)
 
+#            ret = alg_so.FPIGetFeatureByImg(sTZ_tmp, sTZ , ctypes.byref(data_len), err_msgs)
+#
+#            if ret < 0:
+#                rospy.logerr("ERROR: FPIGetFeatureByImg error ! !")
+#                rospy.logerr("\nFPIGetFeatureByImg--[%d] [%s]", ret, err_msgs.value)
+#            else:
+#                rospy.loginfo("FPIGetFeatureByImg excute OK")
+#                rospy.loginfo("data len:  %d", data_len.value)
+#                rospy.loginfo("feature info: %s", sTZ.value)
+
+
         elif state == 3:
             
-            print "\nstart to match ..."
-            ret = alg_so.FPIFpMatch(sMB, sTZ, 3)
+            print "\n           start to match ..."
+            ret = dev_so.FPIFpMatch(sMB, sTZ, 3)
             print ' ---------- end match --------------\n'
             
             if ret < 0:
-                rospy.logerr("ERROR: FPIGetFeature error ! !")
+                rospy.logerr("ERROR: FPIFpMatch error ! !")
                 rospy.logerr("\n指纹比对失败--[%d] [%s]", ret, err_msgs.value)
-                rospy.loginfo("FPIGetFeature excute OK")
             else:
                 rospy.loginfo("FPIFpMatch excute OK")
                 rospy.loginfo("\n指纹比对成功")
+
+        elif state == 4:
+
+            print "\n start to check finger . . "
+            ret = dev_so.FPICheckFinger(err_msgs)
+            print ' ---------- end check finger --------------\n'
+            if ret < 0:
+                rospy.logerr("ERROR: FPICheckFinger error ! !")
+                rospy.logerr("\nFPICheckFinger--[%d] [%s]", ret, err_msgs.value)
+            else:
+                rospy.loginfo("FPICheckFinger excute OK")
+                if ret == 0:
+                    print "finger is pressed "
+                if ret == 1:
+                    print "finger is not pressed "
 
         elif state == 0:
             #exit(1)
             return
 
-        time.sleep(1)
+        time.sleep(2)
 
     rospy.spin()
 
