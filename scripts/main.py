@@ -33,31 +33,32 @@ def main():
         rospy.loginfo("dev_info:  %s", dev_info.value)
 
     #sys.system('clear')
-    input("press enter to continue . . .")
+    raw_input("press enter to continue . . .")
     while 1:
         os.system("clear")
         print   "\t\t==================================================\n"  \
                 "\t\ttest function      \n" \
                 "\t\t===================================================\n" \
                 "\t\t\t1-- get template (press 3 times) and save template \n"\
-                "\t\t\t2--pick fingerprint model\n" \
-                "\t\t\t3--pick fingerprint feature  \n" \
-                "\t\t\t4--fingerprint match\n" \
+                "\t\t\t2--pick fingerprint feature  \n" \
+                "\t\t\t3--fingerprint match\n" \
                 "\t\t\t0--quit        \n"
 
-        state = input("\n input option \n  ")
-
-        if isinstance(state, int):
-            pass
+        state = input("\n input option (integer) \n  ")
+        if state is not None:
+            if isinstance(state, int):
+                pass
+            else:
+                rospy.logerr("please input integer value !");
+                continue
         else:
-            rospy.logerr("please input integer value !");
-            continue
+            rospy.logerr("input value is None !");
 
 
         if state == 1:
 
             print "start to pick fingerprint model ..."
-            ret = dev_so.FPIGetTemplate(term, port, 10000, sMB, ctypes.byref(data_len), err_msgs)
+            ret = dev_so.FPIGetTemplate(term, port, 15000, sMB, ctypes.byref(data_len), err_msgs)
             print ' ---------- pick fingerprint model --------------'
             if ret < 0:
                 rospy.logerr("ERROR: FPIGetTemplate error ! !")
@@ -73,7 +74,7 @@ def main():
         elif state == 2:
 
             print "start to pick fingerprint feature ..."
-            ret = dev_so.FPIGetFeature(term, port, 15000, sTZ, ctypes.byref(data_len), err_msgs)
+            ret = dev_so.FPIGetFeature(term, port, 5000, sTZ, ctypes.byref(data_len), err_msgs)
             print ' ---------- pick fingerprint feature --------------'
 
             if ret < 0:
