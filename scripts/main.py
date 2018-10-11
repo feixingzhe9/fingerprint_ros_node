@@ -77,8 +77,14 @@ def main():
 
 
     #sys.system('clear')
-    raw_input("press enter to continue . . .")
+    raw_input("\n \n press enter to continue . . .")
     while 1:
+        os.system("clear")
+        print "press finger to continue . ."
+        while dev_so.FPICheckFinger() is not 0: # 0: finger pressed, 1: finger not pressed
+            #time.sleep(0.1)
+            pass
+
         os.system("clear")
         print   "\t\t==================================================\n"  \
                 "\t\ttest function      \n" \
@@ -197,7 +203,7 @@ def main():
                 rospy.loginfo("FPIGetFeatureAndImage excute OK")
                 print 'img_3: ', tz_3.value
             print " 3 end \n"
-
+            data_len.value = 0
             #ret = dev_so.FPIGetTemplateByTZ(img_1, img_2, img_3, sMB, ctypes.byref(data_len), err_msgs)
             ret = dev_so.FPIGetTemplateByTZ(tz_1, tz_2, tz_3, sMB, ctypes.byref(data_len))
             if ret < 0:
@@ -210,6 +216,9 @@ def main():
         elif state == 0:
             #exit(1)
             return
+        else:
+            print "please input right integer number"
+            pass
 
         time.sleep(2)
 
