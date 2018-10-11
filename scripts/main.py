@@ -4,9 +4,9 @@
 import ctypes
 import os
 import sys
-import rospy
 import time
-
+import rospy
+from fp_db import fp_db
 
 test_flag = False
 
@@ -36,6 +36,10 @@ def main():
     global tz_3
     rate = rospy.Rate(10)
     time.sleep(1)
+
+    fp_db.create_table()
+    print fp_db.cursor
+    print fp_db.connect
 
     dev_info = (ctypes.c_char * (64 + 1))()
     lib_info = (ctypes.c_char * (64 + 1))()
@@ -69,15 +73,9 @@ def main():
     else:
         rospy.loginfo("dev_info:  %s", dev_info.value)
 
-#    print "start to get lib info ... "
-#    #ret = dev_so.FPIGetInfo(lib_info, err_msgs)
-#    lib_info = dev_so.FPIGetDllVersion()
-#    print ' ---------- end of getting lib info --------------'
-#    rospy.loginfo("dev_info:  %s", lib_info.value)
-
-
-    #sys.system('clear')
     raw_input("\n \n press enter to continue . . .")
+    #name = raw_input("\n \n press enter to continue . . .")
+
     while 1:
         os.system("clear")
         print "press finger to continue . ."
@@ -212,6 +210,13 @@ def main():
             elif ret == 0:
                 rospy.loginfo("FPIGetTemplateByImg excute OK")
                 print 'get sMB :', sMB.value
+
+            name = raw_input("\ninput name:")
+            rfid = "1055"
+            password = "1055"
+            worker_id = 1055
+
+            fp_db.insert_fp_feature(name, rfid, password, worker_id, door_id = 0, id_type = 1, feature = sMB.value)
 
         elif state == 0:
             #exit(1)
