@@ -43,15 +43,32 @@ def create_table():
     connect.commit()
     close_db()
 
+def get_max_uid():
+    global connect
+    global cursor
+
+    open_db()
+    exe_str = "SELECT max(UID) FROM " + TABLE_FP
+    cursor.execute(exe_str)
+    values = cursor.fetchall()
+    print values
+
+    if values[0][0] == None  :
+        print "table", TABLE_FP, " is NULL"
+        return 1
+    else:
+        return int(values[0][0]) + 1
+
+
 def insert_fp_feature(name, rfid, password, worker_id, door_id, id_type, feature):
     global connect
     global cursor
     
     open_db()
 
-    #exe_str = "INSERT INTO " + TABLE_FP + " VALUES( " + "NULL"  + ", " +  "\'" + name + "\'" + ", " +  "\'" + rfid + "\'" + ", " +  "\'" + password + "\'" + ", " + str(worker_id) + ", " + str(door_id) + ", " + str(id_type) + ", " + "\'" + feature + "\'" + ")"
+    uid = get_max_uid()
 
-    exe_str = "INSERT INTO " + TABLE_FP + " VALUES( " + "1" + ", "\
+    exe_str = "INSERT INTO " + TABLE_FP + " VALUES( " + str(uid) + ", "\
                                                  "\'" + name        + "\'" + ", " + \
                                                  "\'" + rfid        + "\'" + ", " + \
                                                  "\'" + password    + "\'" + ", " + \
@@ -61,7 +78,7 @@ def insert_fp_feature(name, rfid, password, worker_id, door_id, id_type, feature
                                                  "\'" + feature     + "\'" + ")"
     print '\n', exe_str, '\n'
     cursor.execute(exe_str)
-    connect.commit()
+    commit_db()
     close_db()
 
 if __name__ == '__main__':
