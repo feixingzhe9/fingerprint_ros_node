@@ -26,6 +26,24 @@ tz_3 = (ctypes.c_char * (512 + 1))()
 def test_fun():
     pass
 
+def check_integer(input_value):
+    input_err_flag = False
+    #print "state :", state
+    if len(input_value) > 0:
+        for i in input_value:
+            #print '\n', i, '\n'
+            if i < '0' or i > '9':
+                rospy.logerr("请输入纯数字 !")
+                input_err_flag = True
+                break
+    else:
+        rospy.logerr("输入为空 !")
+        return -1
+
+    if input_err_flag == True:
+        return -1
+    return 0
+
 def main():
     global dev_so
     global img_1
@@ -94,12 +112,36 @@ def main():
 
 ##                "\t\t\t1-- get template (press 3 times) and save template \n"\
 
-        state = input("\n 请输入功能编号并回车(例如，输入5并回车,开始录入指纹): ")
+        state = raw_input("\n 请输入功能编号并回车(例如，输入5并回车,开始录入指纹): ")
+#        input_err_flag = False
+#        #print "state :", state
+#        if len(state) > 0:
+#            for i in state:
+#                #print '\n', i, '\n'
+#                if i < '0' or i > '9':
+#                    rospy.logerr("请输入纯数字 !")
+#                    input_err_flag = True
+#                    break
+#        else:
+#            print "输入为空 !"
+#            time.sleep(2)
+#            continue
+#
+#        if input_err_flag == True:
+#            print "input_err_falg == True"
+#            time.sleep(2)
+#            continue
+
+        if check_integer(state) < 0:
+            time.sleep(2)
+            continue
+        state = int(state)
         if state is not None:
             if isinstance(state, int):
                 pass
             else:
                 rospy.logerr("please input integer value !");
+                time.sleep(2)
                 continue
         else:
             rospy.logerr("input value is None !");
@@ -202,6 +244,7 @@ def main():
             else:
                 rospy.loginfo("FPIGetFeatureAndImage excute OK")
                 print 'img_3: ', tz_3.value
+
             print " 3 end \n"
             data_len.value = 0
             #ret = dev_so.FPIGetTemplateByTZ(img_1, img_2, img_3, sMB, ctypes.byref(data_len), err_msgs)
@@ -215,8 +258,7 @@ def main():
 
             name = raw_input("\n请输入姓名:")
             rfid = raw_input("\n请输入RFID号:")
-            worker_id = rfid
-            rfid = str(rfid)
+            worker_id = int(rfid)
             password = rfid
 
             fp_db.insert_fp_feature(name, rfid, password, worker_id, door_id = 0, id_type = 1, feature = sMB.value)

@@ -64,7 +64,6 @@ def get_max_uid():
 def insert_fp_feature(name, rfid, password, worker_id, door_id, id_type, feature):
     global connect
     global cursor
-    
     open_db()
 
     uid = get_max_uid()
