@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+import sys
 import sqlite3
 
 connect = None
@@ -81,6 +82,40 @@ def insert_fp_feature(name, rfid, password, worker_id, door_id, id_type, feature
     commit_db()
     close_db()
 
+
+def get_all_db():
+    print sys._getframe().f_code.co_name, " start"
+    global connect
+    global cursor
+
+    open_db()
+
+    exe_str = "SELECT * FROM " + TABLE_FP
+    print '\n', exe_str, '\n'
+    cursor.execute(exe_str)
+    values = cursor.fetchall()
+
+    close_db()
+    print "return values: ", values
+    print sys._getframe().f_code.co_name ," end"
+    return values
+
+def get_feature_rfid_name():
+    print sys._getframe().f_code.co_name
+    global connect
+    global cursor
+
+    features = ([])
+    values = get_all_db()
+    for i in range(0, len(values)):
+        print i
+        features.append([values[i][1], values[i][2], values[i][7]])
+
+    print features
+    return features
+
+
 if __name__ == '__main__':
     #insert_fp_feature("kaka", "1055", "1055", 1055, 1, 1, "abcdefg")
+    get_feature_rfid_name()
     print 'pass'

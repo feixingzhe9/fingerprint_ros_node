@@ -140,16 +140,24 @@ def main():
                 rospy.loginfo("data len:  %d", data_len.value)
                 rospy.loginfo("feature info: %s", sTZ.value)
 
+            features = fp_db.get_feature_rfid_name()
+            match_ok_flag = False
             print "\n           start to match ..."
-            ret = dev_so.FPIFpMatch(sMB, sTZ, 3)
+            for i in range(0, len(features)):
+                sMB.value = features[i][2]
+                if dev_so.FPIFpMatch(sMB, sTZ, 3) == 0:
+                    print "\n指纹比对成功\n"
+                    print "name: ", features[i][0]
+                    print "rfid: ", features[i][1]
+                    match_ok_flag = True
+                    break
+
+
             print ' ---------- end match --------------\n'
             
-            if ret < 0:
+            if match_ok_flag is not True:
                 rospy.logerr("ERROR: FPIFpMatch error ! !")
                 rospy.logerr("\n指纹比对失败--[%d] [%s]", ret, err_msgs.value)
-            else:
-                rospy.loginfo("FPIFpMatch excute OK")
-                rospy.loginfo("\n指纹比对成功")
 
         elif state == 3:
             pass
