@@ -73,27 +73,28 @@ def main():
     else:
         rospy.loginfo("dev_info:  %s", dev_info.value)
 
-    raw_input("\n \n press enter to continue . . .")
+    raw_input("\n \n 按下回车键以继续 . . .")
     #name = raw_input("\n \n press enter to continue . . .")
 
     while 1:
         os.system("clear")
-        print "press finger to continue . ."
+        print "按下指纹以继续 . ."
         while dev_so.FPICheckFinger() is not 0: # 0: finger pressed, 1: finger not pressed
             #time.sleep(0.1)
             pass
 
         os.system("clear")
         print   "\t\t==================================================\n"  \
-                "\t\ttest function      \n" \
+                "\t\t 测试模板      \n" \
                 "\t\t===================================================\n" \
-                "\t\t\t1-- get template (press 3 times) and save template \n"\
-                "\t\t\t2--pick fingerprint feature and match \n" \
-                "\t\t\t4--finger check(check the finger is pressed or not)\n" \
-                "\t\t\t5-- get template \n"\
-                "\t\t\t0--quit        \n"
+                "\t\t\t2-- 指纹识别 \n" \
+                "\t\t\t4-- 检查手指是否按下\n" \
+                "\t\t\t5-- 录入指纹 \n"\
+                "\t\t\t0-- 退出        \n"
 
-        state = input("\n input option (integer) \n  ")
+##                "\t\t\t1-- get template (press 3 times) and save template \n"\
+
+        state = input("\n 请输入功能编号并回车(例如，输入5并回车,开始录入指纹): ")
         if state is not None:
             if isinstance(state, int):
                 pass
@@ -125,57 +126,50 @@ def main():
 
         elif state == 2:
 
-            print "start to pick fingerprint feature ..."
+            print "请按下指纹 ..."
             data_len.value = 0
             #ret = dev_so.FPIGetFeature(term, port, 5000, sTZ, ctypes.byref(data_len), err_msgs)
             #ret = dev_so.FPIGetFeature(5000, sTZ, ctypes.byref(data_len), err_msgs)
             ret = dev_so.FPIFeature(5000, sTZ, ctypes.byref(data_len))
-            print ' ---------- pick fingerprint feature --------------'
 
             if ret < 0:
                 rospy.logerr("ERROR: FPIGetFeature error ! !")
                 rospy.logerr("\n采集指纹特征失败--[%d] [%s]", ret, err_msgs.value)
             else:
                 rospy.loginfo("FPIGetFeature excute OK")
-                rospy.loginfo("data len:  %d", data_len.value)
-                rospy.loginfo("feature info: %s", sTZ.value)
+                #rospy.loginfo("data len:  %d", data_len.value)
+                #rospy.loginfo("feature info: %s", sTZ.value)
 
             features = fp_db.get_feature_rfid_name()
             match_ok_flag = False
-            print "\n           start to match ..."
+            rospy.loginfo("开始匹配 ...")
             for i in range(0, len(features)):
                 sMB.value = features[i][2]
                 if dev_so.FPIFpMatch(sMB, sTZ, 3) == 0:
-                    print "\n指纹比对成功\n"
-                    print "name: ", features[i][0]
-                    print "rfid: ", features[i][1]
+                    rospy.loginfo("指纹比对成功")
+                    print "该指纹匹配到的姓名: ", features[i][0]
+                    print "该指纹匹配到的rfid: ", features[i][1]
                     match_ok_flag = True
                     break
-
-
-            print ' ---------- end match --------------\n'
             
             if match_ok_flag is not True:
                 rospy.logerr("ERROR: FPIFpMatch error ! !")
-                rospy.logerr("\n指纹比对失败--[%d] [%s]", ret, err_msgs.value)
-
-        elif state == 3:
-            pass
+                rospy.logerr("指纹比对失败--[%d] [%s]", ret, err_msgs.value)
+                rospy.logerr("指纹比对失败")
 
         elif state == 4:
 
-            print "\n start to check finger . . "
+            print "\n 开始检测手指 . . "
             ret = dev_so.FPICheckFinger(err_msgs)
-            print ' ---------- end check finger --------------\n'
             if ret < 0:
                 rospy.logerr("ERROR: FPICheckFinger error ! !")
                 rospy.logerr("\nFPICheckFinger--[%d] [%s]", ret, err_msgs.value)
             else:
                 rospy.loginfo("FPICheckFinger excute OK")
                 if ret == 0:
-                    print "finger is pressed "
+                    print "手指已按下 "
                 if ret == 1:
-                    print "finger is not pressed "
+                    print "手指未按下 "
 
 
         elif state == 5:
@@ -219,19 +213,22 @@ def main():
                 rospy.loginfo("FPIGetTemplateByImg excute OK")
                 print 'get sMB :', sMB.value
 
-            name = raw_input("\ninput name:")
-            rfid = raw_input("\ninput rfid:")
+            name = raw_input("\n请输入姓名:")
+            rfid = raw_input("\n请输入RFID号:")
             worker_id = rfid
             rfid = str(rfid)
             password = rfid
 
             fp_db.insert_fp_feature(name, rfid, password, worker_id, door_id = 0, id_type = 1, feature = sMB.value)
+            print "\n姓名 : ", name
+            print "\nRFID : ", rfid
+            print "\n录入成功\n"
 
         elif state == 0:
             #exit(1)
             return
         else:
-            print "please input right integer number"
+            print "\n请输入正确的选项 ! \n"
             pass
 
         time.sleep(2)

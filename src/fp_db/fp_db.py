@@ -55,7 +55,7 @@ def get_max_uid():
     print values
 
     if values[0][0] == None  :
-        print "table", TABLE_FP, " is NULL"
+        #print "table", TABLE_FP, " is NULL"
         return 1
     else:
         return int(values[0][0]) + 1
@@ -77,31 +77,31 @@ def insert_fp_feature(name, rfid, password, worker_id, door_id, id_type, feature
                                                  str(door_id)    +  ", " + \
                                                  str(id_type)    + ", " + \
                                                  "\'" + feature     + "\'" + ")"
-    print '\n', exe_str, '\n'
+    #print '\n', exe_str, '\n'
     cursor.execute(exe_str)
     commit_db()
     close_db()
 
 
 def get_all_db():
-    print sys._getframe().f_code.co_name, " start"
+    #print sys._getframe().f_code.co_name, " start"
     global connect
     global cursor
 
     open_db()
 
     exe_str = "SELECT * FROM " + TABLE_FP
-    print '\n', exe_str, '\n'
+    #print '\n', exe_str, '\n'
     cursor.execute(exe_str)
     values = cursor.fetchall()
 
     close_db()
-    print "return values: ", values
-    print sys._getframe().f_code.co_name ," end"
+    #print "return values: ", values
+    #print sys._getframe().f_code.co_name ," end"
     return values
 
 def get_feature_rfid_name():
-    print sys._getframe().f_code.co_name
+    #print sys._getframe().f_code.co_name
     global connect
     global cursor
 
@@ -109,20 +109,19 @@ def get_feature_rfid_name():
 
     #features = ([])
     #values = get_all_db()
-    exe_str = "SELECT NAME, RFID, FP_FEATURE FROM " + TABLE_FP
-    print "\n mark ----\n"
-    print exe_str
-    cursor.execute(exe_str)
-    print "\n mark ----\n"
-    features = cursor.fetchall()
 #    for i in range(0, len(values)):
 #        print i
 #        features.append([values[i][1], values[i][2], values[i][7]])
 
-    close_db()
-    print features
-    return features
+    exe_str = "SELECT NAME, RFID, FP_FEATURE FROM " + TABLE_FP
+    #print exe_str
+    cursor.execute(exe_str)
+    features = cursor.fetchall()
 
+    close_db()
+
+    #print features
+    return features
 
 if __name__ == '__main__':
     #insert_fp_feature("kaka", "1055", "1055", 1055, 1, 1, "abcdefg")
