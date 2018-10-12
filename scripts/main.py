@@ -258,6 +258,9 @@ def main():
 
             name = raw_input("\n请输入姓名:")
             rfid = raw_input("\n请输入RFID号:")
+            while check_integer(rfid) < 0:
+                rfid = raw_input("\n请输入RFID号:")
+
             worker_id = int(rfid)
             password = rfid
 
