@@ -220,9 +220,10 @@ def main():
                 print 'get sMB :', sMB.value
 
             name = raw_input("\ninput name:")
-            rfid = "1055"
-            password = "1055"
-            worker_id = 1055
+            rfid = raw_input("\ninput rfid:")
+            worker_id = rfid
+            rfid = str(rfid)
+            password = rfid
 
             fp_db.insert_fp_feature(name, rfid, password, worker_id, door_id = 0, id_type = 1, feature = sMB.value)
 

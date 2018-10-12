@@ -105,12 +105,21 @@ def get_feature_rfid_name():
     global connect
     global cursor
 
-    features = ([])
-    values = get_all_db()
-    for i in range(0, len(values)):
-        print i
-        features.append([values[i][1], values[i][2], values[i][7]])
+    open_db()
 
+    #features = ([])
+    #values = get_all_db()
+    exe_str = "SELECT NAME, RFID, FP_FEATURE FROM " + TABLE_FP
+    print "\n mark ----\n"
+    print exe_str
+    cursor.execute(exe_str)
+    print "\n mark ----\n"
+    features = cursor.fetchall()
+#    for i in range(0, len(values)):
+#        print i
+#        features.append([values[i][1], values[i][2], values[i][7]])
+
+    close_db()
     print features
     return features
 
