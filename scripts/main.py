@@ -183,6 +183,12 @@ def main():
             data_len.value = 0
             #ret = dev_so.FPIGetFeature(term, port, 5000, sTZ, ctypes.byref(data_len), err_msgs)
             #ret = dev_so.FPIGetFeature(5000, sTZ, ctypes.byref(data_len), err_msgs)
+            while dev_so.FPICheckFinger(err_msgs) == 1:
+                pass
+
+            pub_fp_id(1, "0000")
+            for i in range(0, len(sTZ)):
+                sTZ[i] = 'A'
             ret = dev_so.FPIFeature(5000, sTZ, ctypes.byref(data_len))
 
             if ret < 0:
@@ -212,7 +218,7 @@ def main():
                 rospy.logerr("ERROR: FPIFpMatch error ! !")
                 rospy.logerr("指纹比对失败--[%d] [%s]", ret, err_msgs.value)
                 rospy.logerr("指纹比对失败")
-                pub_fp_id(-1, rfid)
+                pub_fp_id(-1, "0000")
 
         elif state == 4:
 
