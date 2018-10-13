@@ -8,6 +8,7 @@ import time
 import rospy
 from fp_db import fp_db
 from std_msgs.msg import String
+from mrobot_msgs.msg import fingerprint
 
 test_flag = False
 
@@ -29,9 +30,12 @@ fp_id_pub = None
 def test_fun():
     pass
 
-def pub_fp_id(id):
+def pub_fp_id(result, rfid):
     global fp_id_pub
-    fp_id_pub.publish(id)
+    msg = fingerprint()
+    msg.result = result
+    msg.rfid = rfid
+    fp_id_pub.publish(msg)
 
 def check_integer(input_value):
     input_err_flag = False
@@ -200,7 +204,7 @@ def main():
                     rfid = features[i][1]
                     print "该指纹匹配到的姓名: ", name
                     print "该指纹匹配到的rfid: ", rfid
-                    pub_fp_id(rfid)
+                    pub_fp_id(0, rfid)
                     match_ok_flag = True
                     break
             
@@ -208,6 +212,7 @@ def main():
                 rospy.logerr("ERROR: FPIFpMatch error ! !")
                 rospy.logerr("指纹比对失败--[%d] [%s]", ret, err_msgs.value)
                 rospy.logerr("指纹比对失败")
+                pub_fp_id(-1, rfid)
 
         elif state == 4:
 
@@ -294,7 +299,7 @@ if __name__ == '__main__':
     #global fp_id_pub
     try:
         rospy.init_node('fingerprint', anonymous=True)
-        fp_id_pub = rospy.Publisher('fp_id', String, queue_size=10)
+        fp_id_pub = rospy.Publisher('fp_id', fingerprint, queue_size=10)
         main()
     except Exception:
         rospy.logerr(sys.exc_info())
