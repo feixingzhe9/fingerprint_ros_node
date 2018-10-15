@@ -112,6 +112,8 @@ def main():
             #time.sleep(0.1)
             pass
 
+        pub_fp_id(1, "0000")
+
         os.system("clear")
         print   "\t\t==================================================\n"  \
                 "\t\t 测试模板      \n" \
@@ -237,44 +239,64 @@ def main():
 
         elif state == 5:
 
+            while dev_so.FPICheckFinger(err_msgs) == 1:
+                pass
+            pub_fp_id(1, "0000")
+
             print "\n 1  start\n"
-            ret = dev_so.FPIGetFeatureAndImage(5000, tz_1, ctypes.byref(data_len), img_1, ctypes.byref(img_data_len), err_msgs)
-            if ret < 0:
-                rospy.logerr("ERROR: FPIGetFeatureAndImage error ! !")
-                rospy.logerr("\nFPIGetFeatureAndImage--[%d] [%s]", ret, err_msgs.value)
-            else:
-                rospy.loginfo("FPIGetFeatureAndImage excute OK")
-                print 'img_1: ', tz_1.value
+            while True:
+                ret = dev_so.FPIGetFeatureAndImage(3000, tz_1, ctypes.byref(data_len), img_1, ctypes.byref(img_data_len), err_msgs)
+                if ret < 0:
+                    #rospy.logerr("ERROR: FPIGetFeatureAndImage error ! !")
+                    #rospy.logerr("\nFPIGetFeatureAndImage--[%d] [%s]", ret, err_msgs.value)
+                    pass
+                else:
+                    rospy.loginfo("FPIGetFeatureAndImage excute OK")
+                    print 'img_1: ', tz_1.value
+                    break
             print " 1 end \n"
 
+            while dev_so.FPICheckFinger(err_msgs) == 1:
+                pass
+            pub_fp_id(1, "0000")
+
             print "\n 2 start\n"
-            ret = dev_so.FPIGetFeatureAndImage(5000, tz_2, ctypes.byref(data_len), img_2, ctypes.byref(img_data_len), err_msgs)
-            if ret < 0:
-                rospy.logerr("ERROR: FPIGetFeatureAndImage error ! !")
-                rospy.logerr("\nFPIGetFeatureAndImage--[%d] [%s]", ret, err_msgs.value)
-            else:
-                rospy.loginfo("FPIGetFeatureAndImage excute OK")
-                print 'img_2: ', tz_2.value
+            while True:
+                ret = dev_so.FPIGetFeatureAndImage(5000, tz_2, ctypes.byref(data_len), img_2, ctypes.byref(img_data_len), err_msgs)
+                if ret < 0:
+                    #rospy.logerr("ERROR: FPIGetFeatureAndImage error ! !")
+                    #rospy.logerr("\nFPIGetFeatureAndImage--[%d] [%s]", ret, err_msgs.value)
+                    pass
+                else:
+                    rospy.loginfo("FPIGetFeatureAndImage excute OK")
+                    print 'img_2: ', tz_2.value
+                    break
             print " 2 end \n"
 
             print "\n 3 start\n"
-            ret = dev_so.FPIGetFeatureAndImage(5000, tz_3, ctypes.byref(data_len), img_3, ctypes.byref(img_data_len), err_msgs)
-            if ret < 0:
-                rospy.logerr("ERROR: FPIGetFeatureAndImage error ! !")
-                rospy.logerr("\nFPIGetFeatureAndImage--[%d] [%s]", ret, err_msgs.value)
-            else:
-                rospy.loginfo("FPIGetFeatureAndImage excute OK")
-                print 'img_3: ', tz_3.value
+            while dev_so.FPICheckFinger(err_msgs) == 1:
+                pass
+            pub_fp_id(1, "0000")
+            while True:
+                ret = dev_so.FPIGetFeatureAndImage(5000, tz_3, ctypes.byref(data_len), img_3, ctypes.byref(img_data_len), err_msgs)
+                if ret < 0:
+                    #rospy.logerr("ERROR: FPIGetFeatureAndImage error ! !")
+                    #rospy.logerr("\nFPIGetFeatureAndImage--[%d] [%s]", ret, err_msgs.value)
+                    pass
+                else:
+                    rospy.loginfo("FPIGetFeatureAndImage excute OK")
+                    print 'img_3: ', tz_3.value
+                    break
 
             print " 3 end \n"
             data_len.value = 0
             #ret = dev_so.FPIGetTemplateByTZ(img_1, img_2, img_3, sMB, ctypes.byref(data_len), err_msgs)
             ret = dev_so.FPIGetTemplateByTZ(tz_1, tz_2, tz_3, sMB, ctypes.byref(data_len))
             if ret < 0:
-                rospy.logerr("ERROR: FPIGetTemplateByImg error ! !")
-                rospy.logerr("\nFPIGetTemplateByImg--[%d] [%s]", ret, err_msgs.value)
+                rospy.logerr("ERROR: FPIGetTemplateByTZ error ! !")
+                rospy.logerr("\nFPIGetTemplateByTZ--[%d] [%s]", ret, err_msgs.value)
             elif ret == 0:
-                rospy.loginfo("FPIGetTemplateByImg excute OK")
+                rospy.loginfo("FPIGetTemplateByTZ excute OK")
                 print 'get sMB :', sMB.value
 
             name = raw_input("\n请输入姓名:")
