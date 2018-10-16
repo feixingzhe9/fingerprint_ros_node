@@ -10,6 +10,7 @@ project(fingerprint)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
+  roslib
   mrobot_msgs
 )
 
@@ -105,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES fingerprint
-  CATKIN_DEPENDS rospy std_msgs mrobot_msgs
+  CATKIN_DEPENDS rospy std_msgs roslib mrobot_msgs
   LIBRARIES ${PROJECT_NAME}
 #  DEPENDS system_lib
 )

@@ -312,22 +312,24 @@ def fingerprint_proc():
 
         elif state == 6:
             #print "state == 6"
-            print "\n 指纹清单如下，请输入想要删除指纹的编号\n"
 
             features_id = fp_db.get_feature_rfid_name()
-            print "\n"
-            for fp_feature in features_id:
-                print "ID: ", fp_feature[0], "\t\t,", "name: ", fp_feature[1], "\t\t,", "RFID: ", fp_feature[2], "\n"
-            fp_id = raw_input("\n ")
+            if len(features_id) > 0:
+                print "\n 指纹清单如下，请输入想要删除指纹的编号\n"
+                for fp_feature in features_id:
+                    print "ID: ", fp_feature[0], "\t\t,", "name: ", fp_feature[1], "\t\t,", "RFID: ", fp_feature[2], "\n"
+                fp_id = raw_input("\n ")
 
-            while check_integer(fp_id) < 0:
-                fp_id = raw_input("\n请输入指纹编号:")
-            fp_id = int(fp_id)
-            ret = fp_db.del_feature_by_uid(fp_id)
-            if ret == -1:
-               print "查不到此ID，请输入正确ID  ! !"
-            elif ret == 0:
-                print "\n删除成功\n"
+                while check_integer(fp_id) < 0:
+                    fp_id = raw_input("\n请输入指纹编号:")
+                fp_id = int(fp_id)
+                ret = fp_db.del_feature_by_uid(fp_id)
+                if ret == -1:
+                   print "查不到此ID，请输入正确ID  ! !"
+                elif ret == 0:
+                    print "\n删除成功\n"
+            else:
+                print "\n    指纹数据为空， 请先录入指纹 "
 
 
         elif state == 0:

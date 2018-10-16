@@ -3,16 +3,21 @@
 
 import sys
 import sqlite3
+import rospkg
 
 connect = None
 cursor = None
 
+rospack = rospkg.RosPack()
+
 TABLE_FP = "fp_feature"
+DB_PATH = rospack.get_path("fingerprint")
+DB_PATH = DB_PATH + "/fp_feature_id.db"
 
 def open_db():
     global connect
     global cursor
-    connect = sqlite3.connect("test.db")
+    connect = sqlite3.connect(DB_PATH)
     cursor = connect.cursor()
 
 def close_db():
