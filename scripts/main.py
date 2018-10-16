@@ -6,6 +6,7 @@ import os
 import sys
 import time
 import rospy
+import thread
 from fp_db import fp_db
 from std_msgs.msg import String
 from mrobot_msgs.msg import fingerprint
@@ -55,7 +56,7 @@ def check_integer(input_value):
         return -1
     return 0
 
-def main():
+def fingerprint_proc():
     global dev_so
     global img_1
     global img_2
@@ -63,7 +64,6 @@ def main():
     global tz_1
     global tz_2
     global tz_3
-    rate = rospy.Rate(10)
     time.sleep(1)
 
     fp_db.create_table()
@@ -133,26 +133,26 @@ def main():
             continue
         state = int(state)
 
-        if state == 1:
+#        if state == 1:
+#
+#            print "start to pick fingerprint model ..."
+#            data_len.value = 0
+#            #ret = dev_so.FPIGetTemplate(term, port, 15000, sMB, ctypes.byref(data_len), err_msgs)
+#            #ret = dev_so.FPIGetTemplate(15000, sMB, ctypes.byref(data_len), err_msgs)
+#            ret = dev_so.FPITemplate(15000, sMB, ctypes.byref(data_len))
+#            print ' ---------- pick fingerprint model --------------'
+#            if ret < 0:
+#                rospy.logerr("ERROR: FPIGetTemplate error ! !")
+#                rospy.logerr("\n采集指纹模板失败--[%d] [%s]", ret, err_msgs.value)
+#            elif ret == 0:
+#                rospy.loginfo("FPIGetTemplate excute OK")
+#                rospy.loginfo("\n采集指纹模板成功\n")
+#                rospy.loginfo("data len:  %d", data_len.value)
+#                rospy.loginfo("template info:  %s", sMB.value)
+#
+#            print 'ret value: ', ret
 
-            print "start to pick fingerprint model ..."
-            data_len.value = 0
-            #ret = dev_so.FPIGetTemplate(term, port, 15000, sMB, ctypes.byref(data_len), err_msgs)
-            #ret = dev_so.FPIGetTemplate(15000, sMB, ctypes.byref(data_len), err_msgs)
-            ret = dev_so.FPITemplate(15000, sMB, ctypes.byref(data_len))
-            print ' ---------- pick fingerprint model --------------'
-            if ret < 0:
-                rospy.logerr("ERROR: FPIGetTemplate error ! !")
-                rospy.logerr("\n采集指纹模板失败--[%d] [%s]", ret, err_msgs.value)
-            elif ret == 0:
-                rospy.loginfo("FPIGetTemplate excute OK")
-                rospy.loginfo("\n采集指纹模板成功\n")
-                rospy.loginfo("data len:  %d", data_len.value)
-                rospy.loginfo("template info:  %s", sMB.value)
-
-            print 'ret value: ', ret
-
-        elif state == 2:
+        if state == 2:
 
             print "请按下指纹 ..."
             data_len.value = 0
@@ -231,6 +231,7 @@ def main():
                     break
 
             print "\n 第一次结束，请抬起指纹 \n"
+            pub_fp_id(1, "0000")
             while dev_so.FPICheckFinger(err_msgs) == 0:
                 pass
             pub_fp_id(1, "0000")
@@ -255,6 +256,7 @@ def main():
                     break
 
             print "\n 第二次结束，请抬起指纹 \n"
+            pub_fp_id(1, "0000")
             while dev_so.FPICheckFinger(err_msgs) == 0:
                 pass
             pub_fp_id(1, "0000")
@@ -277,6 +279,7 @@ def main():
                     break
 
             print "\n 第三次结束，请抬起指纹 \n"
+            pub_fp_id(1, "0000")
             while dev_so.FPICheckFinger(err_msgs) == 0:
                 pass
             pub_fp_id(1, "0000")
@@ -328,21 +331,23 @@ def main():
 
 
         elif state == 0:
-            #exit(1)
-            return
+            rospy.signal_shutdown("主动退出")
         else:
             print "\n请输入正确的选项 ! \n"
             pass
 
         time.sleep(2)
 
+def main():
     rospy.spin()
 
 if __name__ == '__main__':
-    #global fp_id_pub
+
     try:
         rospy.init_node('fingerprint', anonymous=True)
         fp_id_pub = rospy.Publisher('fp_id', fingerprint, queue_size=10)
+        thread.start_new_thread(fingerprint_proc, ())
+        time.sleep(0.5)
         main()
     except Exception:
         rospy.logerr(sys.exc_info())
