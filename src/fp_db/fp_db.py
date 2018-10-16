@@ -112,7 +112,7 @@ def get_feature_rfid_name():
 #        print i
 #        features.append([values[i][1], values[i][2], values[i][7]])
 
-    exe_str = "SELECT NAME, RFID, FP_FEATURE FROM " + TABLE_FP
+    exe_str = "SELECT UID, NAME, RFID, FP_FEATURE FROM " + TABLE_FP
     #print exe_str
     cursor.execute(exe_str)
     features = cursor.fetchall()
@@ -121,6 +121,34 @@ def get_feature_rfid_name():
 
     #print features
     return features
+
+def del_feature_by_uid(uid):
+    global connect
+    global cursor
+
+    open_db()
+    exe_str = "SELECT UID FROM " + TABLE_FP
+    cursor.execute(exe_str)
+    uid_db = cursor.fetchall()
+    has_this_uid_flag = False
+    for i in uid_db:
+        #print "uid in database :", i
+        if i[0] == uid:
+            has_this_uid_flag = True
+            break
+    if has_this_uid_flag is not True:
+        #print "No  uid ", uid, " in table ! !"
+        return -1
+
+    exe_str = "DELETE  FROM " + TABLE_FP + " WHERE UID = " + str(uid)
+    print '\n', exe_str, '\n'
+    cursor.execute(exe_str)
+
+    commit_db()
+    close_db()
+    #print "return values: ", values
+    #print sys._getframe().f_code.co_name ," end"
+    return 0
 
 if __name__ == '__main__':
     #insert_fp_feature("kaka", "1055", "1055", 1055, 1, 1, "abcdefg")

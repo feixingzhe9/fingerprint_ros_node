@@ -118,47 +118,20 @@ def main():
         print   "\t\t==================================================\n"  \
                 "\t\t 测试模板      \n" \
                 "\t\t===================================================\n" \
-                "\t\t\t2-- 指纹识别 \n" \
+                "\t\t\t2-- 识别指纹 \n" \
                 "\t\t\t4-- 检查手指是否按下\n" \
                 "\t\t\t5-- 录入指纹 \n"\
+                "\t\t\t6-- 删除指纹 \n"\
                 "\t\t\t0-- 退出        \n"
 
 ##                "\t\t\t1-- get template (press 3 times) and save template \n"\
 
         state = raw_input("\n 请输入功能编号并回车(例如，输入5并回车,开始录入指纹): ")
-#        input_err_flag = False
-#        #print "state :", state
-#        if len(state) > 0:
-#            for i in state:
-#                #print '\n', i, '\n'
-#                if i < '0' or i > '9':
-#                    rospy.logerr("请输入纯数字 !")
-#                    input_err_flag = True
-#                    break
-#        else:
-#            print "输入为空 !"
-#            time.sleep(2)
-#            continue
-#
-#        if input_err_flag == True:
-#            print "input_err_falg == True"
-#            time.sleep(2)
-#            continue
 
         if check_integer(state) < 0:
             time.sleep(2)
             continue
         state = int(state)
-        if state is not None:
-            if isinstance(state, int):
-                pass
-            else:
-                rospy.logerr("please input integer value !");
-                time.sleep(2)
-                continue
-        else:
-            rospy.logerr("input value is None !");
-
 
         if state == 1:
 
@@ -205,11 +178,11 @@ def main():
             match_ok_flag = False
             rospy.loginfo("开始匹配 ...")
             for i in range(0, len(features)):
-                sMB.value = features[i][2]
+                sMB.value = features[i][3]
                 if dev_so.FPIFpMatch(sMB, sTZ, 3) == 0:
                     rospy.loginfo("指纹比对成功")
-                    name = features[i][0]
-                    rfid = features[i][1]
+                    name = features[i][1]
+                    rfid = features[i][2]
                     print "该指纹匹配到的姓名: ", name
                     print "该指纹匹配到的rfid: ", rfid
                     pub_fp_id(0, rfid)
@@ -333,6 +306,26 @@ def main():
             print "\n姓名 : ", name
             print "\nRFID : ", rfid
             print "\n录入成功\n"
+
+        elif state == 6:
+            #print "state == 6"
+            print "\n 指纹清单如下，请输入想要删除指纹的编号\n"
+
+            features_id = fp_db.get_feature_rfid_name()
+            print "\n"
+            for fp_feature in features_id:
+                print "ID: ", fp_feature[0], "\t\t,", "name: ", fp_feature[1], "\t\t,", "RFID: ", fp_feature[2], "\n"
+            fp_id = raw_input("\n ")
+
+            while check_integer(fp_id) < 0:
+                fp_id = raw_input("\n请输入指纹编号:")
+            fp_id = int(fp_id)
+            ret = fp_db.del_feature_by_uid(fp_id)
+            if ret == -1:
+               print "查不到此ID，请输入正确ID  ! !"
+            elif ret == 0:
+                print "\n删除成功\n"
+
 
         elif state == 0:
             #exit(1)
