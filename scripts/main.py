@@ -239,11 +239,13 @@ def main():
 
         elif state == 5:
 
+            ########  第一次  #########
+            print "\n 三次指纹录入，第一次, 请按下指纹 \n"
+
             while dev_so.FPICheckFinger(err_msgs) == 1:
                 pass
             pub_fp_id(1, "0000")
 
-            print "\n 1  start\n"
             while True:
                 ret = dev_so.FPIGetFeatureAndImage(3000, tz_1, ctypes.byref(data_len), img_1, ctypes.byref(img_data_len), err_msgs)
                 if ret < 0:
@@ -254,8 +256,15 @@ def main():
                     rospy.loginfo("FPIGetFeatureAndImage excute OK")
                     print 'img_1: ', tz_1.value
                     break
-            print " 1 end \n"
 
+            print "\n 第一次结束，请抬起指纹 \n"
+            while dev_so.FPICheckFinger(err_msgs) == 0:
+                pass
+            pub_fp_id(1, "0000")
+
+
+            ########  第二次  #########
+            print "\n 三次指纹录入，第二次, 请按下指纹 \n"
             while dev_so.FPICheckFinger(err_msgs) == 1:
                 pass
             pub_fp_id(1, "0000")
@@ -271,9 +280,15 @@ def main():
                     rospy.loginfo("FPIGetFeatureAndImage excute OK")
                     print 'img_2: ', tz_2.value
                     break
-            print " 2 end \n"
 
-            print "\n 3 start\n"
+            print "\n 第二次结束，请抬起指纹 \n"
+            while dev_so.FPICheckFinger(err_msgs) == 0:
+                pass
+            pub_fp_id(1, "0000")
+
+
+            ########  第三次  #########
+            print "\n 三次指纹录入，第三次, 请按下指纹 \n"
             while dev_so.FPICheckFinger(err_msgs) == 1:
                 pass
             pub_fp_id(1, "0000")
@@ -288,7 +303,14 @@ def main():
                     print 'img_3: ', tz_3.value
                     break
 
-            print " 3 end \n"
+            print "\n 第三次结束，请抬起指纹 \n"
+            while dev_so.FPICheckFinger(err_msgs) == 0:
+                pass
+            pub_fp_id(1, "0000")
+
+
+
+            ########  根据三次指纹特征合成模板  #########
             data_len.value = 0
             #ret = dev_so.FPIGetTemplateByTZ(img_1, img_2, img_3, sMB, ctypes.byref(data_len), err_msgs)
             ret = dev_so.FPIGetTemplateByTZ(tz_1, tz_2, tz_3, sMB, ctypes.byref(data_len))
