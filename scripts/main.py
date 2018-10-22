@@ -4,6 +4,7 @@
 import ctypes
 import os
 import sys
+from termios import tcflush, TCIFLUSH
 import time
 import rospy
 import thread
@@ -102,6 +103,7 @@ def fingerprint_proc():
     else:
         rospy.loginfo("dev_info:  %s", dev_info.value)
 
+    tcflush(sys.stdin, TCIFLUSH)
     raw_input("\n \n 按下回车键以继续 . . .")
     #name = raw_input("\n \n press enter to continue . . .")
 
@@ -125,7 +127,7 @@ def fingerprint_proc():
                 "\t\t\t0-- 退出        \n"
 
 ##                "\t\t\t1-- get template (press 3 times) and save template \n"\
-
+        tcflush(sys.stdin, TCIFLUSH)
         state = raw_input("\n 请输入功能编号并回车(例如，输入5并回车,开始录入指纹): ")
 
         if check_integer(state) < 0:
