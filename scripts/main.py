@@ -30,9 +30,25 @@ def set_fp_templates(req):
 #    JStringResponse.success = True
 #    JStringResponse.response = "OK"
     for fp in fp_info:
+        print 'get fingprint feature: len  ', len(fp), 'data: ', fp
         fp_db.insert_fp_feature(name = 'hello', rfid = '0001', password = '0001', worker_id = 1, door_id = 0, id_type = 1, feature = fp)
 
     return [True, "OK"]
+
+
+def fp_init(cnt):
+    global dev_so
+
+    for i in range(0, cnt):
+        if dev_so.FPIDeviceInit() < 0:
+            time.sleep(1)
+            rospy.logerr("ERROR: FPIDeviceInit error, restart to init . . . ")
+        else:
+            rospy.loginfo("FPIDeviceInit OK")
+            return 0
+
+    rospy.logerr("ERROR: FPIDeviceInit error ! !")
+    return -1
 
 def fingerprint_proc():
     global dev_so
@@ -54,13 +70,8 @@ def fingerprint_proc():
     data_len = ctypes.c_int(1)
     img_data_len = ctypes.c_int(1)
 
-    ret = -1 
-    ret = dev_so.FPIDeviceInit()
-    if ret < 0:
-        rospy.logerr("ERROR: FPIDeviceInit error ! !")
-    else:
-        rospy.loginfo("FPIDeviceInit OK")
-
+    if fp_init(3) < 0:
+        return
     print "start to get dev version ... "
     ret = dev_so.FPIGetVersion(dev_info, err_msgs)
     print ' ---------- end of getting dev version --------------'
@@ -108,38 +119,10 @@ def fingerprint_proc():
             fp_info_cmd = {'template': sTZ.value, 'matched_template': ''}
             pub_fp_info(fp_info_cmd)
 
-#            ########  第三次  #########
-#            print "\n 三次指纹录入，第三次, 请按下指纹 \n"
-#            while dev_so.FPICheckFinger(err_msgs) == 1:
-#                pass
-#            while True:
-#                ret = dev_so.FPIGetFeatureAndImage(5000, tz_3, ctypes.byref(data_len), img_3, ctypes.byref(img_data_len), err_msgs)
-#                if ret < 0:
-#                    #rospy.logerr("ERROR: FPIGetFeatureAndImage error ! !")
-#                    #rospy.logerr("\nFPIGetFeatureAndImage--[%d] [%s]", ret, err_msgs.value)
-#                    pass
-#                else:
-#                    rospy.loginfo("FPIGetFeatureAndImage excute OK")
-#                    print 'img_3: ', tz_3.value
-#                    break
-#
-#            print "\n 第三次结束，请抬起指纹 \n"
-#            while dev_so.FPICheckFinger(err_msgs) == 0:
-#                pass
-#
-#            ########  根据三次指纹特征合成模板  #########
-#            data_len.value = 0
-#            ret = dev_so.FPIGetTemplateByTZ(tz_1, tz_2, tz_3, sMB, ctypes.byref(data_len))
-#            if ret < 0:
-#                rospy.logerr("ERROR: FPIGetTemplateByTZ error ! !")
-#                rospy.logerr("\nFPIGetTemplateByTZ--[%d] [%s]", ret, err_msgs.value)
-#            elif ret == 0:
-#                rospy.loginfo("FPIGetTemplateByTZ excute OK")
-#                print 'get sMB :', sMB.value
-#
-#            fp_db.insert_fp_feature(name, rfid, password, worker_id, door_id = 0, id_type = 1, feature = sMB.value)
-
-        time.sleep(2)
+        print "请抬起指纹 ..."
+        while dev_so.FPICheckFinger(err_msgs) == 0:
+            pass
+        time.sleep(0.2)
 
 def main():
     rospy.spin()
