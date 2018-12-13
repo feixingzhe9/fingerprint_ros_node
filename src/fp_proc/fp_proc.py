@@ -16,6 +16,17 @@ img_3 = (ctypes.c_char * (40537))()
 tz_3 = (ctypes.c_char * (512 + 1))()
 
 report_fp_info_pub = None
+call_unlock = None
+
+def unlock():
+    global call_unlock
+    print 'start_to_unlock . . .'
+    rospy.wait_for_service("/smartlock/unlock")
+    unlock = rospy.ServiceProxy("/smartlock/unlock", JString)
+    data = {'lock_index': 0x07}
+    print json.dumps(data)
+    ret = unlock(json.dumps(data))
+    print ret.success
 
 def pub_fp_info(fp_info):
     global report_fp_info_pub
@@ -113,6 +124,7 @@ def fingerprint_proc():
                 match_ok_flag = True
                 fp_info_cmd = {'template': sTZ.value, 'matched_template': sMB.value}
                 pub_fp_info(fp_info_cmd)
+                unlock()
                 break
 
         if match_ok_flag is not True:
