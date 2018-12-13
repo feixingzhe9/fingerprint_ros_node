@@ -9,4 +9,9 @@ setup_args = generate_distutils_setup(
     package_dir={'': 'src'},
 )
 
+setup_args = generate_distutils_setup(
+    packages=['fp_proc'],
+    package_dir={'': 'src'},
+)
+
 setup(**setup_args)
