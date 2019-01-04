@@ -28,7 +28,7 @@ def close_db():
 def commit_db():
     global connect
     connect.commit()
-    
+
 def create_table():
     global connect
     global cursor
