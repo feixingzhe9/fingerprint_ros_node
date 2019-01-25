@@ -27,6 +27,7 @@ def set_fp_templates(req):
     rospy.loginfo(fp_info)
 #    JStringResponse.success = True
 #    JStringResponse.response = "OK"
+    fp_db.del_all_data()
     for fp in fp_info:
         rospy.loginfo('get fingprint feature: len %d data:  %s', len(fp),fp)
         fp_db.insert_fp_feature(name = 'hello', rfid = '0001', password = '0001', worker_id = 1, door_id = 0, id_type = 1, feature = fp)

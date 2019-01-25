@@ -155,6 +155,20 @@ def del_feature_by_uid(uid):
     #print sys._getframe().f_code.co_name ," end"
     return 0
 
+def del_all_data():
+    global connect
+    global cursor
+
+    open_db()
+
+    exe_str = "DELETE  FROM " + TABLE_FP
+    print '\n', exe_str, '\n'
+    cursor.execute(exe_str)
+
+    commit_db()
+    close_db()
+    return 0
+
 if __name__ == '__main__':
     #insert_fp_feature("kaka", "1055", "1055", 1055, 1, 1, "abcdefg")
     get_feature_rfid_name()
