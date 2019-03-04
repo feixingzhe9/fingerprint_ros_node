@@ -1,0 +1,6 @@
+<launch>
+    <node name="fingerprint_test" pkg="fingerprint_test" type="main.py" respawn="false" />
+    <rosparam file="$(find fingerprint_test)/config/fingerprint_test.yaml" command="load"/>
+
+</launch>
+

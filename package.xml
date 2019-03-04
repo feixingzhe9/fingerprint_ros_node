@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>fingerprint</name>
+  <name>fingerprint_test</name>
   <version>0.0.0</version>
-  <description>The fingerprint package</description>
+  <description>The fingerprint_test package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
