@@ -10,7 +10,7 @@ import rospy
 import thread
 from fp_db import fp_db
 from std_msgs.msg import String
-from mrobot_msgs.msg import fingerprint
+#from mrobot_msgs.msg import fingerprint
 
 test_flag = False
 
@@ -33,11 +33,12 @@ def test_fun():
     pass
 
 def pub_fp_id(result, rfid):
-    global fp_id_pub
-    msg = fingerprint()
-    msg.result = result
-    msg.rfid = rfid
-    fp_id_pub.publish(msg)
+#    global fp_id_pub
+#    msg = fingerprint()
+#    msg.result = result
+#    msg.rfid = rfid
+#    fp_id_pub.publish(msg)
+    pass
 
 def check_integer(input_value):
     input_err_flag = False
@@ -350,7 +351,7 @@ if __name__ == '__main__':
 
     try:
         rospy.init_node('fingerprint', anonymous=True)
-        fp_id_pub = rospy.Publisher('fp_id', fingerprint, queue_size=10)
+        #fp_id_pub = rospy.Publisher('fp_id', fingerprint, queue_size=10)
         thread.start_new_thread(fingerprint_proc, ())
         time.sleep(0.5)
         main()
