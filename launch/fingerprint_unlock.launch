@@ -1,0 +1,6 @@
+<launch>
+    <node name="fingerprint_unlock" pkg="fingerprint_unlock" type="main.py" respawn="false" />
+    <rosparam file="$(find fingerprint_unlock)/config/fingerprint_unlock.yaml" command="load"/>
+
+</launch>
+
