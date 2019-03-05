@@ -109,10 +109,10 @@ def fingerprint_proc():
 
     while 1:
         os.system("clear")
-        print "按下指纹以继续 . ."
-        while dev_so.FPICheckFinger() is not 0: # 0: finger pressed, 1: finger not pressed
-            #time.sleep(0.1)
-            pass
+#        print "按下指纹以继续 . ."
+#        while dev_so.FPICheckFinger() is not 0: # 0: finger pressed, 1: finger not pressed
+#            #time.sleep(0.1)
+#            pass
 
         pub_fp_id(1, "0000")
 
@@ -340,7 +340,8 @@ def fingerprint_proc():
             print "\n请输入正确的选项 ! \n"
             pass
 
-        time.sleep(2)
+        tcflush(sys.stdin, TCIFLUSH)
+        raw_input("\n \n 按下回车键以继续 . . .")
 
 def main():
     rospy.spin()
