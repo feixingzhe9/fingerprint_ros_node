@@ -11,7 +11,7 @@ cursor = None
 rospack = rospkg.RosPack()
 
 TABLE_FP = "fp_feature"
-DB_PATH = rospack.get_path("fingerprint")
+DB_PATH = rospack.get_path("fingerprint_unlock")
 DB_PATH = DB_PATH + "/fp_feature_id.db"
 
 def open_db():
